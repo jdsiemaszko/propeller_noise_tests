@@ -1,54 +1,163 @@
-This repository summarizes validation data for testing propeller noise prediction models covered in [1]. A total of 5 (2+3) tests are included for the source prediction and propagation.
+This repository summarizes validation data for testing propeller noise prediction models covered in [1]. Two separate tests are included:
 
-1) Predictor:
-    1.1) test_PIN_blade_loadings.h5
+1) Source Prediction via Potential Interaction [1,2]:
+    The test file contains model inputs: geometry, mean loading, and mean inflow velocity distribution
+    The expected output is an array of blade loading harmonics (see equations 3 and 4 in [1]), strut loading harmonics (see equation 18), and a downwash profile along the rotation (equations 7-8).
 
-        inputs: 
-        geometry parameters
-        mean blade loading 
-        radial inflow distribution
+2) Propagation via Acoustic Analogy [3, 4]:
+    The test contains inputs as before, including the blade and strut loading harmonics and mean thickness-to-chord of the blade.
+    The expected outputs are far-field acoustic pressure spectra for several radiating components:
+        -rotor steady loading noise (eq. 2)
+        -rotor unsteady loading noise (eq. 2)
+        -rotor thickness noise
+        -strut loading noise (eq. 9)
 
-        outputs:
-        blade loading harmonics
+File contents (folder structure):
 
-    1.2) test_PIN_beam_loadings.h5
+    test_loading_prediction.h5
+    │
+    ├── inputs
+    │   ├── Omega_rad_p_s
+    │   ├── rho_kg_p_m3
+    │   ├── sos_m_p_s
+    │   ├── radius_inner_m
+    │   ├── radius_outer_m
+    │   ├── twist_inner_rad
+    │   ├── twist_outer_rad
+    │   ├── chord_inner_m
+    │   ├── chord_outer_m
+    │   ├── L_cylinder_m
+    │   ├── D_cylinder_m
+    │   ├── B
+    │   ├── F_z_prime_N_p_m
+    │   ├── F_phi_prime_N_p_m
+    │   ├── F_r_prime_N_p_m
+    │   └── U_inf_m_p_s
+    │
+    └── outputs
+        ├── blade_loading_harmonics_N_p_m
+        │   ├── real
+        │   └── imag
+        │
+        ├── strut_loading_harmonics_N_p_m
+        │   ├── real
+        │   └── imag
+        │
+        ├── azimuth_rad
+        ├── harmonic_k
+        ├── frequency_Hz
+        └── blade_downwash_m_p_s
 
-        inputs: 
-            geometry parameters
-            mean blade loading 
-            radial inflow distribution
 
-        outputs:
-            blade loading harmonics  
 
-2) Propagator:
-    2.1) test_blade_loading_noise.h5
+    test_propagator.h5
+    │
+    ├── inputs
+    │   ├── Omega_rad_p_s
+    │   ├── rho_kg_p_m3
+    │   ├── sos_m_p_s
+    │   ├── radius_inner_m
+    │   ├── radius_outer_m
+    │   ├── twist_inner_rad
+    │   ├── twist_outer_rad
+    │   ├── chord_inner_m
+    │   ├── chord_outer_m
+    │   ├── t_c_inner
+    │   ├── t_c_outer
+    │   ├── L_cylinder_m
+    │   ├── D_cylinder_m
+    │   │
+    │   ├── blade_loading_harmonics_N_p_m
+    │   │   ├── real
+    │   │   └── imag
+    │   │
+    │   ├── beam_loading_harmonics_N_p_m
+    │   │   ├── real
+    │   │   └── imag
+    │   │
+    │   └── B
+    │
+    └── outputs
+        ├── p_loading_blade_steady_Pa
+        │   ├── real
+        │   └── imag
+        ├── p_loading_blade_unsteady_Pa
+        │   ├── real
+        │   └── imag
+        ├── p_loading_strut_Pa
+        │   ├── real
+        │   └── imag 
+        ├── p_thickness_blade_Pa
+        │   ├── real
+        │   └── imag
+        │
+        ├── observer_position_m
+        ├── harmonic_m
+        ├── frequency_Hz
+        │
+        ├── polar_rad
+        └── azimuth_rad
 
-        inputs:
-            operating point
-            ...
-            blade loading harmonics...
+Descriptions:
 
-        outputs:
-            steady loading noise
-            unsteady loading noise
+inputs:
 
-    2.2) test_blade_thickness_noise.h5
+    Omega_rad_p_s : float - rotational frequency in rad/s
+    rho_kg_p_m3 : float - air density in kg/m^3
+    sos_m_p_s : float - speed of sound in m/s
 
-        inputs:
-            operating point
-            ...
-            blade thickness distribution (NACA 0012)
+    radius_inner_m : array of float of shape Nr - radial stations used in the discretization in meters. Values represent the attachment point of the loading/thickness sources in 2) and the radial station assimilated to the 2D problem in 1).
 
-        outputs:
-            blade thickness noise
+    radius_outer_m : array of float of shape Nr+1 - radial stations of the element edges in the discretization in meters. Related to radius_inner_m as: radius_inner_m = 1/2 * (radius_outer_m[1:] + radius_outer_m[:-1]). 
 
-    2.3) test_beam_loading_noise.h5
+    chord_inner_m : array of float of shape Nr - chord length associated with radial stations radius_inner_m in meters.
 
-        inputs:
+    twist_inner_rad : array of float of shape Nr - twist of the propeller blade w.r.t the propeller axis in radians associated with radial stations radius_inner_m.
 
-            beam loading harmonics
+    t_c_inner : array of float of shape Nr - mean thickness-to-chord ratio at the the radial station radius_inner_m. See [5].
 
-        outputs:
+    chord_outer_m, twist_outer_rad, t_c_outer : arrays of float of shape Nr+1 - corresponding outer values of chord, twist, and t/c associated with radial stations radius_outer_m.
 
-            beam loading noise
+    L_cylinder_m : float - spacing between the strut and propeller plane, measured from the strut center in meters. See Fig. 6 in [1].
+
+    D_cylinder_m : float - strut radius in meters.
+
+    B : int - number of blades of the propeller.
+
+    F_z_prime_N_p_m : array of float of shape Nr - distributed mean loading over the propeller blades in the axial direction, in units Newton per meter. Sign convention: positive upstream.
+
+    F_phi_prime_N_p_m : array of float of shape Nr - distributed mean loading over the propeller blades in the azimuthal direction, in units Newton per meter. Sign convention: positive opposite to the direction of rotation (drag is positive).
+
+    F_r_prime_N_p_m : array of float of shape Nr - distributed mean loading over the propeller blades in the radial direction, in units Newton per meter. Set to zero in the current dataset. Sign convention: positive outwards.
+
+    U_inf_m_p_s : array of float of shape Nr - Inflow velocity in the 2D potential flow problem, assumed unchanged between the propeller and strut stations, corresponding to the radial stations radius_inner_m, in units m/s. 
+
+outputs:
+
+    blade_loading_harmonics_N_p_m/real, imag : arrays of float of shape (3, Nk, Nr) - loading harmonics acting on a propeller blade, measured in N/m and separated between real and imaginary components. Axis 0 corresponds to the three force components, in order: radial (positive outwards), axial (positive upwards), azimuthal (positive opposite to the direction of travel). Axis 1 corresponds to a finite number of resolved harmonics of rotational frequency: k * Omega / 2 / pi stored in harmonic_k; element 0 along axis 1 corresponds to mean loading defined via F_z_prime_N_p_m, F_phi_prime_N_p_m, F_r_prime_N_p_m. Axis 2 corresponds to radial stations defined in radius_inner_m. Total loading harmonics are recovered as real + 1j * imag.
+
+    strut_loading_harmonics_N_p_m/real, imag : arrays of float of shape (3, Nk, Nr) - loading harmonics over the strut; same as above.
+
+    harmonic_k : array of int of shape Nk - integers k defining the harmonics of the rotational frequency corresponding to the loading harmonics blade_loading_harmonics_N_p_m/real, imag and strut_loading_harmonics_N_p_m/real, imag. In both cases, we consider the harmonics of the rotation frequency: f = k * Omega. 
+
+    frequency_Hz : array of float of shape Nk - frequency associated with the loading harmonics defined as: k * Omega / 2 / pi, measured in Hz.
+
+    blade_downwash_m_p_s : array of shape (Nr, Nt) - downwash acting on the propeller blade in the time domain, measured in m/s. Axis 0 corresponds to radial stations radius_inner_m. Axis 1 corresponds to azimuth phi = Omega * t defined in azimuth_rad. The time datum t=0 corresponds to the strut azimuth.
+
+    azimuth_rad : array of shape Nt - azimuth stations corresponding to blade_downwash_m_p_s in radians.
+
+
+
+
+Bibliography
+
+[1]  Vella, E., Gojon, R., Parisot-Dupuis, H., Doué, N., Jardin, T., and Roger, M., “Mutual Interaction Noise in Rotor–Beam Configuration,” AIAA Journal, Vol. 0, No. 0, 0, pp. 1–16.
+
+[2] Wu, Y., Kingan, M. J., and Go, S. T., “Propeller-strut interaction tone noise,” Physics of Fluids, Vol. 34, No. 5, 5 2022.
+
+[3] Hanson, D. B. and Parzych, D. J., “Theory for Noise of Propellers in Angular Inflow With Parametric Studies and Experimental Verification,” Tech. Rep. NASA Contractor Report 4499, NASA, 1993.
+
+[4] Lowson, M. V., “Theoretical Analysis of Compressor Noise,” Tech. Rep. 1B, 01 1970.
+
+[5] Glegg, S. and Devenport, W., “Open rotor noise,” Aeroacoustics of Low Mach Number Flows,
+Elsevier, 2017, pp. 399–436.
