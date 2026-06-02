@@ -1,11 +1,11 @@
-This repository is meant to share validation data for testing propeller noise prediction models covered in [1]. Two separate tests are included. The case mimics the experimental setup of [1] in the configuration D20L20.
+A validation dataset for elements of propeller noise prediction models. The case mimics the experimental setup of [1] in the configuration D20L20 and covers the modelling elements in [2].
 
 1) Source Prediction via Potential Interaction [2,3]:
     The test file contains model inputs: geometry, mean loading, and mean inflow velocity distribution
     The expected output is an array of blade loading harmonics (see equations 3 and 4 in [1]), strut loading harmonics (see equation 18), and a downwash profile along the rotation (equations 7-8).
 
 2) Propagation via Acoustic Analogy [4,5]:
-    The test contains inputs as above, including the blade and strut loading harmonics and mean thickness-to-chord of the blade.
+    The test contains inputs same as above, additionally including the blade and strut loading harmonics and mean thickness-to-chord of the blade.
     The expected outputs are far-field acoustic pressure spectra for several radiating components:
         -rotor steady loading noise (eq. 2)
         -rotor unsteady loading noise (eq. 2)
@@ -13,7 +13,8 @@ This repository is meant to share validation data for testing propeller noise pr
         -strut loading noise (eq. 9)
     The test assumes the "standard" implementation of the Hanson & Patrzych propagator model, rotating counterclockwise at the frequency Omega / 2 / pi measured in Hz.
     The rotor is assumed positioned at (0, 0, 0) in 3D, with the axis oriented along (0, 0, 1) with positive z taken as upstream. The zero-azimuth datum is (1, 0, 0). 
-    Throughout, the variables in the frequency domain are defined with the Fourier transform convention: \hat{f}_k = \Omega / 2 / \pi \int_0^{2 \pi / \Omega} (f(t) * exp(1j * k * \Omega * t)) dt. Mind the sign of the exponential term!
+    
+In the current dataset, the variables in the frequency domain are defined with the Fourier transform convention: \hat{f}_k = \Omega / 2 / \pi \int_0^{2 \pi / \Omega} (f(t) * exp(1j * k * \Omega * t)) dt. Mind the sign of the exponential term.
 
 File contents:
 
