@@ -1,10 +1,10 @@
-A validation dataset for elements of propeller noise prediction models. The case mimics the experimental setup of [1] in the configuration D20L20 and covers the modelling elements in [2].
+A validation dataset for elements of propeller noise prediction models. The case mimics the experimental setup of [1] in the configuration D20L20 and covers the modelling elements in [2]. The two tests cover the potential interaction model for loading prediction (see [2,3]) and the propagation of sources to the acoustic far field via the acoustic analogy (see [4,5]):
 
-1) Source Prediction via Potential Interaction [2,3]:
+1) Source Prediction via Potential Interaction:
     The test file contains model inputs: geometry, mean loading, and mean inflow velocity distribution
     The expected output is an array of blade loading harmonics (see equations 3 and 4 in [1]), strut loading harmonics (see equation 18), and a downwash profile along the rotation (equations 7-8).
 
-2) Propagation via Acoustic Analogy [4,5]:
+2) Propagation via Acoustic Analogy:
     The test contains inputs same as above, additionally including the blade and strut loading harmonics and mean thickness-to-chord of the blade.
     The expected outputs are far-field acoustic pressure spectra for several radiating components:
         -rotor steady loading noise (eq. 2)
