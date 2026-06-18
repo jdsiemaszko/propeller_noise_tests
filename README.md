@@ -152,6 +152,8 @@ outputs:
 
     blade_downwash_m_p_s : array of shape (Nr, Nt) - downwash acting on the propeller blade normal to the chord, in the time domain, measured in m/s. Axis 0 corresponds to radial stations radius_inner_m. Axis 1 corresponds to azimuth stations: phi = Omega * t defined in azimuth_rad. The time datum t=0 corresponds to the strut azimuth station.
 
+    blade_downwash_harmonics_m_p_s : array of shape (Nk, Nr) - harmonics of downwash defined in blade_downwash_m_p_s computed with the same Fourier transform convention as defined in the header. Axis 1 corresponds to resolved harmonics in harmonics_k, axis 2 corresponds to radial stations radius_inner_m.
+
     azimuth_rad : array of shape Nt - azimuth stations phi = Omega * t corresponding to blade_downwash_m_p_s in radians.
 
     p_loading_blade_steady_Pa/real, imag : arrays of float of shape (Nx, Nm) - far-field pressure field of the propeller steady loading noise in units Pa at locations defined by observer_position_m and harmonics m of frequency Omega*B/2/pi defined by harmonics_m. Axis 0 corresponds to observer positions, axis 1 to harmonic number.
